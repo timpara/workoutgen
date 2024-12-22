@@ -43,7 +43,6 @@ generator = WorkoutGenerator()
 params = WorkoutParameters(
     workout_type=WorkoutType.THRESHOLD,
     duration_minutes=60,
-    ftp=250
 )
 
 # Generate your pain
@@ -97,8 +96,7 @@ Currently supports:
 ```python
 quick_burn = WorkoutParameters(
     workout_type=WorkoutType.VO2,
-    duration_minutes=30,
-    ftp=280
+    duration_minutes=30
 )
 ```
 
@@ -107,7 +105,6 @@ quick_burn = WorkoutParameters(
 lazy_sunday = WorkoutParameters(
     workout_type=WorkoutType.ENDURANCE,
     duration_minutes=120,
-    ftp=250
 )
 ```
 
