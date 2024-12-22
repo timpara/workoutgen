@@ -122,7 +122,7 @@ Zone 6: >121%     - Anaerobic
 ```
 
 ## 🚧 Roadmap
-- [ ] Zwift workout file (.zwo) export
+- [X] Zwift workout file (.zwo) export
 - [ ] TrainerRoad file export
 - [ ] Workout progression planning
 - [ ] Multi-week training plan generation

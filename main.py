@@ -38,3 +38,6 @@ print(f"\nFile saved as: {filename}")
 
 # Export to MRC file
 generator.export_mrc(intervals, filename, workout_description)
+
+# Export to ZWO file
+generator.export_zwo(intervals, filename, workout_description)
