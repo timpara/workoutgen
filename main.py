@@ -10,7 +10,6 @@ generator = WorkoutGenerator()
 params = WorkoutParameters(
     workout_type=WorkoutType.THRESHOLD,
     duration_minutes=60,
-    ftp=250
 )
 
 # Generate workout name and description
@@ -21,7 +20,7 @@ workout_description = generator.create_workout_description(params)
 intervals = generator.generate_workout(params)
 
 # Calculate metrics
-tss, kcal = generator.calculate_metrics(intervals, params.ftp)
+tss = generator.calculate_metrics(intervals)
 
 # Create filename
 filename = generator.create_filename(workout_name)
@@ -33,7 +32,6 @@ print(f"\nDescription:")
 print(workout_description)
 print(f"\nMetrics:")
 print(f"TSS: {tss}")
-print(f"Estimated kcal: {kcal}")
 print(f"\nFile saved as: {filename}")
 
 # Export to MRC file
