@@ -185,7 +185,7 @@ docker stop <container_id>
 docker-compose down
 
 ## 🚧 Roadmap
-- [ ] Zwift workout file (.zwo) export
+- [X] Zwift workout file (.zwo) export
 - [ ] TrainerRoad file export
 - [ ] Workout progression planning
 - [ ] Multi-week training plan generation

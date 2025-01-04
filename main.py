@@ -40,3 +40,6 @@ print(f"\nFile saved as: {filename}")
 
 # Export to MRC file
 generator.export_mrc(intervals, filename, description)
+
+# Export to ZWO file
+generator.export_zwo(intervals, filename, description)
