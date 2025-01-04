@@ -38,6 +38,14 @@ class WorkoutInterval:
     start_time: int  # seconds
     end_time: int  # seconds
     power: int  # watts
+@dataclass
+class WorkoutSegment:
+    workout_type: WorkoutType
+    duration_minutes: int
+@dataclass
+class WorkoutParameters:
+    segments: List[WorkoutSegment]
+    total_duration_minutes: int
 
 
 class WorkoutGenerator:
@@ -89,26 +97,25 @@ class WorkoutGenerator:
             ]
         }
 
-    def generate_workout_name(self, workout_type: WorkoutType, duration_minutes: int) -> str:
-        """Generate a meaningful workout name"""
-        base_name = random.choice(self.workout_names[workout_type])
+    def generate_workout_name(self, params: WorkoutParameters) -> str:
+        """Generate a meaningful workout name for mixed workout"""
+        workout_types = [segment.workout_type for segment in params.segments]
+        base_names = [random.choice(self.workout_names[wt]).split()[0] for wt in workout_types]
+        combined_name = "Mixed_" + "_".join(base_names)
         timestamp = datetime.now().strftime("%Y%m%d")
-        return f"{timestamp}_{base_name}_{duration_minutes}min"
+        return f"{timestamp}_{combined_name}_{params.total_duration_minutes}min"
 
     def create_workout_description(self, params: WorkoutParameters) -> str:
-        """Create a meaningful workout description"""
-        intensity_range = self.intensity_ranges[params.workout_type]
-        base_descriptions = {
-            WorkoutType.ENDURANCE: f"Endurance workout targeting {intensity_range[0]}-{intensity_range[1]}% of FTP. Focus on maintaining steady power.",
-            WorkoutType.THRESHOLD: f"Threshold intervals at {intensity_range[0]}-{intensity_range[1]}% of FTP. Building sustainable power.",
-            WorkoutType.VO2: f"VO2max intervals at {intensity_range[0]}-{intensity_range[1]}% of FTP. High-intensity work to improve oxygen uptake.",
-            WorkoutType.TEMPO: f"Tempo work at {intensity_range[0]}-{intensity_range[1]}% of FTP. Sustained moderate-intensity efforts.",
-            WorkoutType.Z2: f"Zone 2 training at {intensity_range[0]}-{intensity_range[1]}% of FTP. Building aerobic base.",
-            WorkoutType.SPRINTS: f"Sprint intervals up to {intensity_range[1]}% of FTP with recovery periods. Improving peak power."
-        }
+        """Create a meaningful workout description for mixed workout"""
+        description = "Mixed workout combining:\n"
+        for segment in params.segments:
+            intensity_range = self.intensity_ranges[segment.workout_type]
+            description += f"- {segment.workout_type.value.title()} ({segment.duration_minutes}min): "
+            description += f"{intensity_range[0]}-{intensity_range[1]}% of FTP\n"
+        description += f"\nTotal Duration: {params.total_duration_minutes} minutes"
+        return description
 
-        return (f"{base_descriptions[params.workout_type]}\n"
-                f"Duration: {params.duration_minutes} minutes\n")
+
 
     def create_filename(self, workout_name: str, file_type: str = "mrc") -> str:
         """Create a properly formatted filename"""
@@ -120,59 +127,67 @@ class WorkoutGenerator:
     def generate_workout(self, params: WorkoutParameters) -> List[WorkoutInterval]:
         intervals = []
         current_time = 0
-        duration_seconds = params.duration_minutes * 60
+        duration_seconds = params.total_duration_minutes * 60
 
         # Always start with a 5-minute warmup at 40%
         warmup_duration = 300
         intervals.append(WorkoutInterval(0, warmup_duration, 40))
         current_time = warmup_duration
 
-        # Generate main intervals
-        while current_time < (duration_seconds - 300):  # Leave room for cooldown
-            if params.workout_type == WorkoutType.SPRINTS:
-                # Special handling for sprints: include recovery
-                sprint_duration = random.randint(15, 30)
-                recovery_duration = random.randint(60, 180)
+        # Generate intervals for each segment
+        remaining_time = duration_seconds - 600  # Accounting for warmup and cooldown
+        for segment in params.segments:
+            segment_duration_seconds = int((segment.duration_minutes / params.total_duration_minutes) * remaining_time)
+            segment_end_time = current_time + segment_duration_seconds
 
-                sprint_power = random.randint(
-                    self.intensity_ranges[params.workout_type][0],
-                    self.intensity_ranges[params.workout_type][1]
-                )
+            while current_time < segment_end_time:
+                if segment.workout_type == WorkoutType.SPRINTS:
+                    # Special handling for sprints: include recovery
+                    sprint_duration = random.randint(15, 30)
+                    recovery_duration = random.randint(60, 180)
 
-                intervals.append(WorkoutInterval(
-                    current_time,
-                    current_time + sprint_duration,
-                    sprint_power
-                ))
+                    if current_time + sprint_duration + recovery_duration > segment_end_time:
+                        break
 
-                intervals.append(WorkoutInterval(
-                    current_time + sprint_duration,
-                    current_time + sprint_duration + recovery_duration,
-                    50  # Recovery at 50%
-                ))
+                    sprint_power = random.randint(
+                        self.intensity_ranges[segment.workout_type][0],
+                        self.intensity_ranges[segment.workout_type][1]
+                    )
 
-                current_time += sprint_duration + recovery_duration
-            else:
-                # Regular interval generation
-                interval_duration = random.randint(
-                    *self.interval_durations[params.workout_type]
-                )
+                    intervals.append(WorkoutInterval(
+                        current_time,
+                        current_time + sprint_duration,
+                        sprint_power
+                    ))
 
-                if current_time + interval_duration > duration_seconds - 300:
-                    interval_duration = duration_seconds - 300 - current_time
+                    intervals.append(WorkoutInterval(
+                        current_time + sprint_duration,
+                        current_time + sprint_duration + recovery_duration,
+                        50  # Recovery at 50%
+                    ))
 
-                power = random.randint(
-                    self.intensity_ranges[params.workout_type][0],
-                    self.intensity_ranges[params.workout_type][1]
-                )
+                    current_time += sprint_duration + recovery_duration
+                else:
+                    # Regular interval generation
+                    interval_duration = random.randint(
+                        *self.interval_durations[segment.workout_type]
+                    )
 
-                intervals.append(WorkoutInterval(
-                    current_time,
-                    current_time + interval_duration,
-                    power
-                ))
+                    if current_time + interval_duration > segment_end_time:
+                        interval_duration = segment_end_time - current_time
 
-                current_time += interval_duration
+                    power = random.randint(
+                        self.intensity_ranges[segment.workout_type][0],
+                        self.intensity_ranges[segment.workout_type][1]
+                    )
+
+                    intervals.append(WorkoutInterval(
+                        current_time,
+                        current_time + interval_duration,
+                        power
+                    ))
+
+                    current_time += interval_duration
 
         # Add cooldown at 40%
         intervals.append(WorkoutInterval(

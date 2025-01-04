@@ -117,6 +117,72 @@ Zone 4: 91-105%   - Threshold
 Zone 5: 106-120%  - VO2 Max
 Zone 6: >121%     - Anaerobic
 ```
+# 📈 Dashboard 
+The EnduWorkout Generator includes a user-friendly dashboard for generating and visualizing your workouts. 
+Easily add workout segments, generate structured workouts, and download them in compatible formats.
+
+## 🐳 Docker Setup
+
+### Prerequisites
+- Docker installed on your machine
+- Docker Compose (optional)
+
+### Building the Docker Image
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/paincave-generator.git
+cd paincave-generator
+
+# Build the Docker image
+docker build -t paincave-app .
+```
+
+### Running the Container
+```bash
+# Run the container
+docker run -p 8050:8050 paincave-app
+```
+
+The application will be available at `http://localhost:8050`
+
+### Development Setup with Volume Mounting
+For development purposes, you can mount your local directory to see live changes:
+```bash
+docker run -p 8050:8050 -v $(pwd):/app paincave-app
+```
+
+### Environment Variables (Optional)
+If you need to set environment variables:
+```bash
+docker run -p 8050:8050 -e VARIABLE_NAME=value paincave-app
+```
+
+### Using Docker Compose (Optional)
+Create a `docker-compose.yml` file:
+```yaml
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "8050:8050"
+    volumes:
+      - .:/app
+```
+
+Then run:
+```bash
+docker-compose up
+```
+
+### Stopping the Container
+```bash
+# If running with docker run
+docker ps
+docker stop <container_id>
+
+# If running with docker-compose
+docker-compose down
 
 ## 🚧 Roadmap
 - [ ] Zwift workout file (.zwo) export
