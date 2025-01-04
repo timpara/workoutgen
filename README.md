@@ -185,7 +185,7 @@ docker stop <container_id>
 
 # If running with docker-compose
 docker-compose down
-
+```
 ## 🚧 Roadmap
 - [X] Zwift workout file (.zwo) export
 - [ ] TrainerRoad file export
