@@ -5,6 +5,7 @@ Generate structured, professional-grade cycling workouts for your indoor trainin
 ![Pain Cave Banner](https://your-image-url-here.jpg)
 
 ## 🎯 Features
+![Dashboard Screenshot](dashboard.png)
 
 ### 🏋️‍♂️ Workout Types
 - **Endurance** - Long, steady efforts to build your aerobic engine
@@ -120,6 +121,7 @@ Zone 6: >121%     - Anaerobic
 # 📈 Dashboard 
 The EnduWorkout Generator includes a user-friendly dashboard for generating and visualizing your workouts. 
 Easily add workout segments, generate structured workouts, and download them in compatible formats.
+
 
 ## 🐳 Docker Setup
 
